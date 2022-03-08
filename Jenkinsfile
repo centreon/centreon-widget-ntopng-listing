@@ -137,7 +137,7 @@ try {
       node {
         checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/widgets/${serie}/widget-package.sh alma8"
-        archiveArtifacts artifacts: 'rpms-centos8.tar.gz'
+        archiveArtifacts artifacts: 'rpms-alma8.tar.gz'
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
