@@ -151,7 +151,7 @@ try {
     stage('Delivery') {
       node {
         checkoutCentreonBuild(buildBranch)
-        unstash 'rpms-centos8'
+        unstash 'rpms-alma8'
         unstash 'rpms-centos7'
         sh "./centreon-build/jobs/widgets/${serie}/widget-delivery.sh"
       }
