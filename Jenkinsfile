@@ -133,7 +133,7 @@ try {
         sh 'rm -rf output'
       }
     },
-    'RPM packaging centos8': {
+    'RPM packaging alma8': {
       node {
         checkoutCentreonBuild(buildBranch)
         sh "./centreon-build/jobs/widgets/${serie}/widget-package.sh centos8"
