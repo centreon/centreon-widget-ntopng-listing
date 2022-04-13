@@ -141,6 +141,16 @@ try {
         stash name: "rpms-alma8", includes: 'output/noarch/*.rpm'
         sh 'rm -rf output'
       }
+    },
+    'Debian bullseye packaging and signing': {
+      node {
+        dir('centreon-widget-live-top10-ntopng-listing') {
+          checkout scm
+        }
+        sh 'docker run -i --entrypoint "/src/centreon-widget-ntopng-listing/ci/scripts/widget-deb-package.sh" -w "/src" -v "$PWD:/src" -e "DISTRIB=Debian11" -e "VERSION=$VERSION" -e "RELEASE=$RELEASE" registry.centreon.com/centreon-debian11-dependencies:22.04'
+        stash name: 'Debian11', includes: 'Debian11/*.deb'
+        archiveArtifacts artifacts: "Debian11/*"
+      }
     }
     if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
       error('Unit tests stage failure.');
