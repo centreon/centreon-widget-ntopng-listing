@@ -140,7 +140,12 @@ if ($preferences['login'] === "" || $preferences['password'] === "" || $preferen
             $server = $traffic['server']['name'] . ":" . $traffic['server']['port'];
             $bandwidth = round($traffic['thpt']['bps'] / 1000000, 2);
             $pps = round($traffic['thpt']['pps'], 2);
-            if ($preferences['filter-address'] != "") {
+            if (($preferences['filter-address'] != "") && ($preferences['filter-port'] != "")) {
+                if ((($preferences['filter-address'] == $traffic['client']['ip']) or ($preferences['filter-address'] == $traffic['server']['ip'])) and (($preferences['filter-port'] == $traffic['client']['port']) or ($preferences['filter-port'] == $traffic['server']['port']))) {
+                    $data['flows'][] = array("protocol" => $protocol, "client" => $client, "server" => $server,
+                    "bandwidth" => $bandwidth, "packets_per_second" => $pps);
+                }
+            } elseif ($preferences['filter-address'] != "") {
                 if (($preferences['filter-address'] == $traffic['client']['ip']) or ($preferences['filter-address'] == $traffic['server']['ip'])) {
                     $data['flows'][] = array("protocol" => $protocol, "client" => $client, "server" => $server,
                     "bandwidth" => $bandwidth, "packets_per_second" => $pps);
