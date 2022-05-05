@@ -107,13 +107,12 @@ if ($preferences['login'] === "" || $preferences['password'] === "" || $preferen
           $preferences['sort'] . "&limit=" . $preferences['top'];
     }
 
-    $auth = base64_encode($preferences['login'] . ":" . $preferences['password']);
-    $context = stream_context_create([
-    "http" => [
-        "header" => "Authorization: Basic $auth"
-      ]
-    ]);
-    $result = file_get_contents($preferences['url'], false, $context);
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $preferences['url']);
+    curl_setopt($curl, CURLOPT_USERPWD, $preferences['login'] . ":" . $preferences['password']);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $result = curl_exec($curl);
+    curl_close($curl);
     if ($result === false) {
         $data['error'] = 1;
         $data['message'] = "Can't connect to probe, check IP or authentication";
