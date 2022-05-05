@@ -126,7 +126,7 @@ if ($preferences['login'] === "" || $preferences['password'] === "" || $preferen
             $data['hosts'][] = array("name" => $preg_name, "ip" => $traffic['ip'],
                  "bandwidth" => round($traffic['thpt']['bps'] / 1000000, 2),
                      "packets_per_second" => round($traffic['thpt']['pps'], 2));
-            if ($i > $preferences['top']) {
+            if ($i >= $preferences['top']) {
                 break;
             }
             $i++;
@@ -154,7 +154,7 @@ if ($preferences['login'] === "" || $preferences['password'] === "" || $preferen
                 $data['flows'][] = array("protocol" => $protocol, "client" => $client, "server" => $server,
                      "bandwidth" => $bandwidth, "packets_per_second" => $pps);
             }
-            if ($i > $preferences['top']) {
+            if ($i >= $preferences['top']) {
                 break;
             }
             $i++;
@@ -198,7 +198,7 @@ if ($preferences['login'] === "" || $preferences['password'] === "" || $preferen
             $data['applications'][] = array("application" => $application['application'],
                  "protocol" => $application['protocol'],
                   "bandwidth" => round($application['bandwidth'] / 1000000, 2), "bandwidth_pct" => $bandwidth_pct);
-            if ($i > $preferences['top']) {
+            if ($i >= $preferences['top']) {
                 break;
             }
             $i++;
