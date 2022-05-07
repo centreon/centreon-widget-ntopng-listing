@@ -1,24 +1,22 @@
 var timeout;
 
 jQuery(function() {
-	loadMetric();
+        loadMetric();
 });
 
 function loadMetric() {
-	jQuery.ajax({
-		url: './index.php',
+        jQuery.ajax({
+                url: './index.php',
         type: 'GET',
-		data: {
+                data: {
             widgetId: widgetId
-		},
+                },
         success : function(htmlData) {
             var data = jQuery(htmlData).filter('#metric');
-            var $container = $('#metric');
-            var h;
+            var container = $('#metric');
 
-            $container.html(data);
-
-            h = $container.scrollHeight + 10;
+            container.html(data);
+            var h = container[0].scrollHeight;
 
             if(h){
                 parent.iResize(window.name, h);
@@ -26,7 +24,7 @@ function loadMetric() {
                 parent.iResize(window.name, 340);
             }
         }
-	});
+        });
 
     if (autoRefresh && autoRefresh != "") {
         if (timeout) {

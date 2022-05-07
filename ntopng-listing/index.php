@@ -52,6 +52,8 @@ try {
     $preferences['token'] = filter_var($preferences['token'] ?? "", FILTER_SANITIZE_STRING);
     $preferences['address'] = filter_var($preferences['address'] ?? "", FILTER_SANITIZE_STRING);
     $preferences['protocol'] = filter_var($preferences['protocol'], FILTER_SANITIZE_STRING);
+    $preferences['filter-address'] = filter_var($preferences['filter-address'] ?? "", FILTER_VALIDATE_IP);
+    $preferences['filter-port'] = filter_var($preferences['filter-port'] ?? "", FILTER_VALIDATE_INT);
     $preferences['interface'] = filter_var($preferences['interface'] ?? 0, FILTER_VALIDATE_INT);
     $preferences['port'] = filter_var($preferences['port'] ?? 3000, FILTER_VALIDATE_INT);
     $preferences['mode'] = filter_var($preferences['mode'] ?? 'top-n-local', FILTER_SANITIZE_STRING);
@@ -61,6 +63,12 @@ try {
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 60;
     }
+
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => "Generic-theme",
+        'dark' => "Centreon-Dark",
+        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
     exit;
@@ -141,17 +149,28 @@ if ($preferences['login'] === "" || $preferences['password'] === "" || $preferen
             $bandwidth = round($traffic['thpt']['bps'] / 1000000, 2);
             $pps = round($traffic['thpt']['pps'], 2);
             if (($preferences['filter-address'] != "") && ($preferences['filter-port'] != "")) {
-                if ((($preferences['filter-address'] == $traffic['client']['ip']) or ($preferences['filter-address'] == $traffic['server']['ip'])) and (($preferences['filter-port'] == $traffic['client']['port']) or ($preferences['filter-port'] == $traffic['server']['port']))) {
+                if (
+                    (($preferences['filter-address'] == $traffic['client']['ip']) or
+                     ($preferences['filter-address'] == $traffic['server']['ip'])) and
+                      (($preferences['filter-port'] == $traffic['client']['port']) or
+                       ($preferences['filter-port'] == $traffic['server']['port']))
+                ) {
                     $data['flows'][] = array("protocol" => $protocol, "client" => $client, "server" => $server,
                     "bandwidth" => $bandwidth, "packets_per_second" => $pps);
                 }
             } elseif ($preferences['filter-address'] != "") {
-                if (($preferences['filter-address'] == $traffic['client']['ip']) or ($preferences['filter-address'] == $traffic['server']['ip'])) {
+                if (
+                    ($preferences['filter-address'] == $traffic['client']['ip']) or
+                     ($preferences['filter-address'] == $traffic['server']['ip'])
+                ) {
                     $data['flows'][] = array("protocol" => $protocol, "client" => $client, "server" => $server,
                     "bandwidth" => $bandwidth, "packets_per_second" => $pps);
                 }
             } elseif ($preferences['filter-port'] != "") {
-                if (($preferences['filter-port'] == $traffic['client']['port']) or ($preferences['filter-port'] == $traffic['server']['port'])) {
+                if (
+                    ($preferences['filter-port'] == $traffic['client']['port']) or
+                    ($preferences['filter-port'] == $traffic['server']['port'])
+                ) {
                     $data['flows'][] = array("protocol" => $protocol, "client" => $client, "server" => $server,
                     "bandwidth" => $bandwidth, "packets_per_second" => $pps);
                 }
@@ -213,5 +232,6 @@ if ($preferences['login'] === "" || $preferences['password'] === "" || $preferen
     $template->assign('widgetId', $widgetId);
     $template->assign('autoRefresh', $autoRefresh);
     $template->assign('data', $data);
+    $template->assign('theme', $variablesThemeCSS);
     $template->display('ntopng.ihtml');
 }

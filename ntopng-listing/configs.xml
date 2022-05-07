@@ -24,12 +24,7 @@
           <option value="top-n-application" label="Top N Applications"/>
         </preference>
         <preference label="Top" name="top" defaultValue="10" type="text"/>
-        <preference label="Sort" name="sort" defaultValue="thpt" type="list">
-          <option value="thpt" label="Current Throughput (default)"/>
-          <option value="duration" label="Duration"/>
-          <option value="bytes" label="Volume"/>
-        </preference>
-        <preference label="IP" name="filter-address" defaultValue="" type="text" header="Filters"/>
+        <preference label="IP Address" name="filter-address" defaultValue="" type="text" header="Filters (Top N Flows mode)"/>
         <preference label="Port" name="filter-port" defaultValue="" type="text"/>
         <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="60" type="text" header="Misc"/>
     </preferences>
