@@ -11,8 +11,8 @@
     <url>./widgets/ntopng-listing/index.php</url>
     <autoRefresh>60</autoRefresh>
     <preferences>
-        <preference label="Login" name="login" defaultValue="monitoring" type="text" header="NtopnNG Probe"/>
-        <preference label="Password" name="password" defaultValue="monitoring" type="text"/>
+        <preference label="Login" name="login" defaultValue="" type="text" header="NtopnNG Probe"/>
+        <preference label="Password" name="password" defaultValue="" type="password"/>
         <preference label="Probe" name="address" defaultValue="" type="text"/>
         <preference label="Protocol" name="protocol" defaultValue="http" type="text"/>
         <preference label="Port" name="port" defaultValue="3000" type="text"/>
