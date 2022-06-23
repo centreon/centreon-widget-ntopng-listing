@@ -20,11 +20,13 @@
  */
 
 /**
- * @param array{url: string, login: string, password: string, base_url: string, uri: string} $preferences
- * @return string|bool
+ * Call the NtopNG probe
+ *
+ * @param array{login: string, password: string, base_url: string, uri: string} $preferences
+ * @return string
  * @throws Exception
  */
-function callProbe(array $preferences): string|bool
+function callProbe(array $preferences): string
 {
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $preferences['uri']);
@@ -38,7 +40,8 @@ function callProbe(array $preferences): string|bool
             "Can't connect to probe !\n\n(URL API: %s)",
             $preferences['base_url']
         ));
-    } elseif ($result === '') {
+    }
+    if ($result === '') {
         throw new Exception(sprintf(
             'No data from the probe ! (Check your credentials)\n\n(URI API : %s)',
             $preferences['uri']
@@ -48,6 +51,8 @@ function callProbe(array $preferences): string|bool
 }
 
 /**
+ * Create the link to access the details of the measure
+ *
  * @param array{
  *     mode: string,
  *     base_url: string,

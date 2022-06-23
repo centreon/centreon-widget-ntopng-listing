@@ -29,6 +29,9 @@ const MAX_NUMBER_OF_LINE = 100;
 const DEFAULT_NUMBER_OF_LINES = 10;
 const DEFAULT_AUTO_REFRESH = 60;
 
+const OSI_LEVEL_4 = 'l4';
+const OSI_LEVEL_7 = 'l7';
+
 try {
     CentreonSession::start(1);
     if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
@@ -44,18 +47,17 @@ try {
     $centreonWidget = new CentreonWidget($centreon, $dependencyInjector['configuration_db']);
 
     $preferences = $centreonWidget->getWidgetPreferences($widgetId);
-    $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
-    $preferences['login'] = filter_var($preferences['login'] ?? "", FILTER_SANITIZE_STRING);
-    $preferences['password'] = filter_var($preferences['password'] ?? "", FILTER_SANITIZE_STRING);
-    $preferences['token'] = filter_var($preferences['token'] ?? "", FILTER_SANITIZE_STRING);
-    $preferences['address'] = filter_var($preferences['address'] ?? "", FILTER_SANITIZE_STRING);
-    $preferences['protocol'] = filter_var($preferences['protocol'], FILTER_SANITIZE_STRING);
+    $preferences['login'] = filter_var($preferences['login'] ?? "", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['password'] = filter_var($preferences['password'] ?? "", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['token'] = filter_var($preferences['token'] ?? "", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['address'] = filter_var($preferences['address'] ?? "", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['protocol'] = filter_var($preferences['protocol'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $preferences['filter-address'] = filter_var($preferences['filter-address'] ?? "", FILTER_VALIDATE_IP);
     $preferences['filter-port'] = filter_var($preferences['filter-port'] ?? "", FILTER_VALIDATE_INT);
     $preferences['interface'] = filter_var($preferences['interface'] ?? 0, FILTER_VALIDATE_INT);
     $preferences['port'] = filter_var($preferences['port'] ?? 3000, FILTER_VALIDATE_INT);
-    $preferences['mode'] = filter_var($preferences['mode'] ?? 'top-n-local', FILTER_SANITIZE_STRING);
-    $preferences['sort'] = filter_var($preferences['sort'] ?? 'thpt', FILTER_SANITIZE_STRING);
+    $preferences['mode'] = filter_var($preferences['mode'] ?? 'top-n-local', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['sort'] = filter_var($preferences['sort'] ?? 'thpt', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $preferences['top'] = filter_var($preferences['top'] ?? DEFAULT_NUMBER_OF_LINES, FILTER_VALIDATE_INT);
     $autoRefresh = filter_var($preferences['refresh_interval'] ?? DEFAULT_AUTO_REFRESH, FILTER_VALIDATE_INT);
     if ($autoRefresh === false || $autoRefresh < 5) {
@@ -69,7 +71,7 @@ try {
     $variablesThemeCSS = match ($centreon->user->theme) {
         'light' => "Generic-theme",
         'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
@@ -85,7 +87,7 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
         $preferences['uri'] = createLink($preferences);
         $result = callProbe($preferences);
         $array = json_decode($result, true);
-        if (($preferences['mode'] === "top-n-local") || ($preferences['mode'] === "top-n-remote")) {
+        if (in_array($preferences['mode'], ['top-n-local', 'top-n-remote'], true)) {
             $data['hosts'] = [];
             $i = 1;
             foreach ($array['rsp']['data'] as $traffic) {
@@ -104,7 +106,7 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
             $data['flows'] = [];
             $i = 1;
             foreach ($array['rsp']['data'] as $traffic) {
-                $protocol = $traffic['protocol']['l4'] . " " . $traffic['protocol']['l7'];
+                $protocol = $traffic['protocol'][OSI_LEVEL_4] . " " . $traffic['protocol'][OSI_LEVEL_7];
                 $client = $traffic['client']['name'] . ":" . $traffic['client']['port'];
                 $server = $traffic['server']['name'] . ":" . $traffic['server']['port'];
                 $bandwidth = round($traffic['thpt']['bps'] / 1000000, 2);
@@ -127,19 +129,19 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
             $totalBandwidth = 0;
             foreach ($array['rsp']['data'] as $traffic) {
                 $totalBandwidth += $traffic['thpt']['bps'];
-                $application = $traffic['protocol']['l4'] . "-" . $traffic['protocol']['l7'];
+                $application = $traffic['protocol'][OSI_LEVEL_4] . "-" . $traffic['protocol'][OSI_LEVEL_7];
                 if (in_array($application, $applicationList)) {
                     $applications[$application]['bandwidth'] += $traffic['thpt']['bps'];
                 } else {
                     $applicationList[] = $application;
                     $applications[$application] = [];
-                    $applications[$application]['protocol'] = $traffic['protocol']['l4'];
+                    $applications[$application]['protocol'] = $traffic['protocol'][OSI_LEVEL_4];
 
-                    $l7 = $traffic['protocol']['l7'] === "Unknown"
+                    $l7 = $traffic['protocol'][OSI_LEVEL_7] === "Unknown"
                         ? $traffic['server']['port']
-                        : $traffic['protocol']['l7'];
+                        : $traffic['protocol'][OSI_LEVEL_7];
 
-                    $applications[$application]['protocol'] = $traffic['protocol']['l4'];
+                    $applications[$application]['protocol'] = $traffic['protocol'][OSI_LEVEL_4];
                     $applications[$application]['application'] = $l7;
                     $applications[$application]['bandwidth'] = $traffic['thpt']['bps'];
                 }
