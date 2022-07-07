@@ -3,7 +3,7 @@
     <author>Centreon</author>
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
-    <description>This widget allows to request a NtopNG appliance through API</description>
+    <description>This widget allows to request an NtopNG appliance through API</description>
     <version>22.04.0</version>
     <keywords>centreon, widget, network, ntopng</keywords>
     <screenshot></screenshot>
